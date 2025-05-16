@@ -5,7 +5,7 @@
             "name": "Run with argument",
             "type": "debugpy",
             "request": "launch",
-            "program": "utilities.py",
+            "program": "src/index.py",
             "console": "integratedTerminal",
             "args": ["Melissa"]
         }
