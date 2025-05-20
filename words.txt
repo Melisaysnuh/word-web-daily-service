@@ -1715,7 +1715,6 @@ acmatic
 acme
 acmes
 acmite
-acmites
 acne
 acned
 acnes
@@ -40695,7 +40694,6 @@ coadmire
 coadmired
 coadmires
 coadmiring
-coadmit
 coadmits
 coadmitted
 coadmitting
@@ -52122,7 +52120,6 @@ culter
 culters
 culti
 cultic
-cultier
 cultiest
 cultigen
 cultigens
@@ -98286,7 +98283,6 @@ gurjuns
 gurl
 gurled
 gurlet
-gurlets
 gurlier
 gurliest
 gurling
@@ -102203,7 +102199,6 @@ hemiplegia
 hemiplegias
 hemiplegic
 hemiplegics
-hemipod
 hemipode
 hemipodes
 hemipods
@@ -203286,7 +203281,6 @@ scoptophilia
 scoptophilias
 scoptophobia
 scoptophobias
-scopula
 scopulae
 scopulas
 scopulate
@@ -246589,7 +246583,6 @@ unhasped
 unhasping
 unhasps
 unhasting
-unhasty
 unhatched
 unhatted
 unhatting
@@ -250214,7 +250207,6 @@ unwinking
 unwinkingly
 unwinnable
 unwinnowed
-unwiped
 unwire
 unwires
 unwiring

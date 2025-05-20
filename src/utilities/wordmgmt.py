@@ -19,16 +19,19 @@ def filter_list_by_length(num1: int, num2: int):
     return [word for word in words if len(word) >= num1 and len(word) <= num2]
 
 def validate_word(word: str):
-    # todo fix this
-    url='https://www.dictionaryapi.com/api/v3/references/collegiate/json/'
-    key='c9d049a8-6724-4795-87f9-e091f2940fce'
+    url = 'https://www.dictionaryapi.com/api/v3/references/collegiate/json/'
+    key = 'c9d049a8-6724-4795-87f9-e091f2940fce'
 
     res = requests.get(f"{url}{word}?key={key}")
     data = res.json()
-    if data and isinstance(data[0], dict) and not data[0]['meta']['offensive'] and data[0]['fl'] != 'abbreviation' and data[0]['fl'] != 'Latin phrase' and data[0]['fl'] != 'Spanish phrase':
-        return True
-    else:
-        return False
+
+    if data and isinstance(data[0], dict):
+        meta = data[0].get('meta', {})
+        fl = data[0].get('fl', '')
+
+        if not meta.get('offensive', False) and fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
+            return True
+    return False
 
 
 
@@ -69,6 +72,7 @@ def remove_invalid_word(word_to_remove: str):
 
 def return_validated_array(words: list[str]) -> list[str]:
     try:
+        print(f'in v_a function...{len(words)}')
         valid_words: list[str] = []
         for item in words:
             is_valid = validate_word(item)

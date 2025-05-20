@@ -13,15 +13,18 @@ class WordObj(BaseModel):
 
 
 def calculate_word_points (word: str, isograms_list: list[str]):
-    print(f'word is {word}')
+
     if len(word) < 5:
         to_return = WordObj(word=word, points=2, isogram=False)
+        print(f'word is {to_return}')
         return to_return
     elif isograms_list.count(word) > 0:
         to_return = WordObj(word=word, points=len(word)  + 7, isogram=True)
+        print(f'word is {to_return}')
         return to_return
     else:
         to_return = WordObj(word=word, points=len(word))
+        print(f'word is {to_return}')
         return to_return
 
 
@@ -43,7 +46,7 @@ def get_center (valid_words: list[str], letters: list[str]):
 
         filtered_anagrams: list[str] = filter_for_center(valid_words, l)
         print(filtered_anagrams)
-        if len(filtered_anagrams) > 20 and len(filtered_anagrams) < 50:
+        if len(filtered_anagrams) > 0 and len(filtered_anagrams) < 60:
             print(f'found the perfect length, returning {l}')
             return l
     print(f'returning random letter')
