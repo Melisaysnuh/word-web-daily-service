@@ -1,7 +1,40 @@
-import utilities
-mock_letters = ['d', 'r', 'o', 'u', 'g', 'h', 't']
+import os
+import motor.motor_asyncio
+from pymongo.errors import PyMongoError
+from pydantic import BaseModel
 
-mock_words = 'dough', 'dour', 'drought', 'drug', 'good', 'door'
+class DayModel(BaseModel):
+    daylist_id: str
+    center_letter: str;
+    isograms: list[str];
+    total_points: int;
+    letters: list[str];
+    valid_words: list[str];
 
-result = utilities.get_pangrams(mock_words, mock_letters)
-print(result)
+
+async def connect_db() -> dict[str, int | str]:
+    url = os.getenv('mongodb://localhost:27017')
+
+    if url:
+        try:
+            client = motor.motor_asyncio.AsyncIOMotorClient(url)
+            db = client['wordweb']
+
+            await db.command('ping')
+
+            print('Successfully connected to the database.')
+            return {
+                'statusCode': 200,
+
+            }
+        except PyMongoError as e:
+            print('Internal server error:', e)
+            return {
+                'statusCode': 500,
+                'message': 'Internal server error.'
+            }
+    else:
+        return {
+            'statusCode': 500,
+            'message': 'Error retrieving URL from environment variables.'
+        }
