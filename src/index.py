@@ -3,13 +3,15 @@ import motor.motor_asyncio
 from pymongo.errors import PyMongoError
 from pydantic import BaseModel
 
+from utilities.utilities import WordObj
+
 class DayModel(BaseModel):
     daylist_id: str
     center_letter: str;
     isograms: list[str];
     total_points: int;
     letters: list[str];
-    valid_words: list[str];
+    valid_words: list[WordObj];
 
 
 async def connect_db() -> dict[str, int | str]:

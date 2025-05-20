@@ -1,7 +1,9 @@
 
 from index import DayModel
 from utilities.wordmgmt import get_random_isogram, filter_list_by_length, get_unique_letters, return_validated_array
-from utilities.utilities import get_anagrams, get_center, get_isograms, filter_for_center
+from utilities.utilities import get_anagrams, get_center, get_isograms, filter_for_center, WordObj, calculate_word_points
+from datetime import datetime
+
 
 
 async def construct_day() -> DayModel | None:
@@ -25,14 +27,16 @@ async def construct_day() -> DayModel | None:
                     #now we want to check if there are any other isograms
                     todays_isograms = get_isograms(valid_anagrams_with_center, unique_letter_array)
 
+                    valid_words_final: list[WordObj] = list(map(lambda word: calculate_word_points(word, todays_isograms), valid_anagrams_with_center))
+
                     # now we will build our DayModel
                     return DayModel(
-                        daylist_id="fill this out",
+                        daylist_id=datetime.now().strftime("%Y_%m_%d"),
                         center_letter=center,
                         isograms=todays_isograms,
                         letters=unique_letter_array,
-                        valid_words={},
-                        total_points=0
+                        valid_words=valid_words_final,
+                        total_points = sum(w.points for w in valid_words_final)
                     )
 
     except Exception as e:
