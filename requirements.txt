@@ -1,3 +1,4 @@
 motor
 pydantic
 python-dotenv
+requests
