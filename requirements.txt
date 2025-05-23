@@ -1,4 +1,5 @@
 motor
+pymongo
 pydantic
 python-dotenv
 requests
