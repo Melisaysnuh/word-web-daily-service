@@ -1,5 +1,10 @@
+import os
 import random
 import requests
+from dotenv import load_dotenv
+
+from utilities.types import WordObj
+load_dotenv()
 
 
 
@@ -18,42 +23,51 @@ def filter_list_by_length(num1: int, num2: int):
         words = [line.strip() for line in file]
     return [word for word in words if len(word) >= num1 and len(word) <= num2]
 
-def validate_word(word: str):
-    url = 'https://www.dictionaryapi.com/api/v3/references/collegiate/json/'
-    key = 'c9d049a8-6724-4795-87f9-e091f2940fce'
+def validate_word(candidate: str) -> WordObj | None:
+    try:
+        url =  os.getenv('WEBSTER_URL')
+        key = os.getenv('WEBSTER_API_KEY')
 
-    res = requests.get(f"{url}{word}?key={key}")
-    data = res.json()
+        res = requests.get(f"{url}{candidate}?key={key}")
+        data = res.json()
 
-    if data and isinstance(data[0], dict):
-        meta = data[0].get('meta', {})
-        fl = data[0].get('fl', '')
+        if not data or not isinstance(data[0], dict):
+            print(f"[validate_word] '{candidate}' is not valid or only returned suggestions.")
+            return None
 
-        if not meta.get('offensive', False) and fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
-            return True
-    return False
+        shortdefs = data[0].get("shortdef", [])
+        meta = data[0].get("meta", {})
+        fl = data[0].get("fl", "")
 
+        if not meta.get("offensive", False) and fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
+            return WordObj(word=candidate, definition=shortdefs)
 
+        return None
+
+    except Exception as e:
+        print(f"[validate_word] Error validating '{candidate}': {e}")
+        return None
 
 
 def get_random_isogram():
     try:
         long_list = filter_list_by_length(7,7)
+
         unique_letter_words = [word for word in long_list if len(set(word)) == len(word)]
 
         if not unique_letter_words:
-            raise ValueError("No 7-letter isogram words found.")
+            raise ValueError("[get_random_isogram] No 7-letter isogram words found.")
         else:
             candidate = random.choice(unique_letter_words)
-            result = validate_word(candidate);
+            result = validate_word(candidate)
             if result:
                 return candidate
             else:
-                remove_invalid_word(candidate);
+                remove_invalid_word(candidate)
                 return None
 
     except Exception as e:
-        print(f'Error in get_random_word: {e}')
+        print(f'[get_random_isogram] Exception: {e}')
 
 
 def remove_invalid_word(word_to_remove: str):
@@ -67,18 +81,17 @@ def remove_invalid_word(word_to_remove: str):
             file.write('\n'.join(new_words))
 
     except Exception as error:
-        print('Error removing word:', error)
+        print('[remove_invalid_word] Error removing word:', error)
         raise error
 
-def return_validated_array(words: list[str]) -> list[str]:
+def return_validated_array(words: list[str]) -> list[WordObj]:
     try:
-        print(f'in v_a function...{len(words)}')
-        valid_words: list[str] = []
+        valid_words: list[WordObj] = []
         for item in words:
             is_valid = validate_word(item)
             if is_valid:
-                valid_words.append(item)
+                valid_words.append(is_valid)
         return valid_words
     except Exception as error:
-        print(f"Error in return_validated_array: {error}");
+        print(f"[return_validated_array] Error: {error}");
         raise error

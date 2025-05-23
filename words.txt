@@ -160747,7 +160747,6 @@ oximetries
 oximetry
 oxims
 oxland
-oxlands
 oxlike
 oxlip
 oxlips
@@ -255634,7 +255633,6 @@ vomerine
 vomeronasal
 vomers
 vomica
-vomicae
 vomicas
 vomit
 vomited
@@ -261566,7 +261564,6 @@ xerostomia
 xerostomias
 xerotes
 xerothermic
-xerotic
 xerotripses
 xerotripsis
 xerox

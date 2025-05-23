@@ -1,20 +1,9 @@
 
-import asyncio
-
-from pydantic import BaseModel
-
-from wordmgmt import get_random_isogram, filter_list_by_length, get_unique_letters, return_validated_array
-from helpers import get_anagrams, get_center, get_isograms, filter_for_center, WordObj, calculate_word_points
+from utilities.types import DayModel
+from utilities.wordmgmt import get_random_isogram, filter_list_by_length, get_unique_letters, return_validated_array
+from utilities.helpers import get_anagrams, get_center, get_isograms, filter_for_center,  calculate_word_points
 from datetime import datetime
 
-
-class DayModel(BaseModel):
-    daylist_id: str
-    center_letter: str;
-    isograms: list[str];
-    total_points: int;
-    letters: list[str];
-    valid_words: list[WordObj];
 
 async def construct_day() -> DayModel | None:
     try:
@@ -30,17 +19,21 @@ async def construct_day() -> DayModel | None:
             anagrams = get_anagrams(isogram, main_list)
             valid_anagrams = return_validated_array(anagrams)
 
+        # once we have anagrams, we gt the center and filter only anagrams containing center letter
             if valid_anagrams:
                 center = get_center(valid_anagrams, unique_letter_array)
                 print(f"center is {center}")
                 if center:
+                    print(f"[construct_day]: Center is {center} .")
                     valid_anagrams_with_center = filter_for_center(valid_anagrams, center)
-
-                    #now we want to check if there are any other isograms
                     todays_isograms = get_isograms(valid_anagrams_with_center, unique_letter_array)
+                    for i, item in enumerate(valid_anagrams_with_center):
+                        valid_anagrams_with_center[i] = calculate_word_points(item, todays_isograms)
 
-                    valid_words_final: list[WordObj] = list(map(lambda word: calculate_word_points(word, todays_isograms), valid_anagrams_with_center))
-                    print(valid_words_final)
+                    for item in valid_anagrams_with_center:
+                        item = calculate_word_points(item, todays_isograms)
+
+                    print(f"[construct_day]: Returning {len(valid_anagrams_with_center)} words today.")
 
                     # now we will build our DayModel
                     return DayModel(
@@ -48,8 +41,8 @@ async def construct_day() -> DayModel | None:
                         center_letter=center,
                         isograms=todays_isograms,
                         letters=unique_letter_array,
-                        valid_words=valid_words_final,
-                        total_points = sum(w.points for w in valid_words_final)
+                        valid_words=valid_anagrams_with_center,
+                        total_points = sum(w.points for w in valid_anagrams_with_center)
                     )
 
                 else: print(f'Error, no center found')
@@ -61,5 +54,3 @@ async def construct_day() -> DayModel | None:
         print(f'Error in daylist constructor {e}')
         return None
 
-test = asyncio.run(construct_day())
-print(test)
