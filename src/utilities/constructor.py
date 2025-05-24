@@ -38,10 +38,10 @@ async def construct_day() -> DayModel | None:
                     # now we will build our DayModel
                     return DayModel(
                         daylist_id=datetime.now().strftime("%Y_%m_%d"),
-                        center_letter=center,
+                        centerLetter=center,
                         isograms=todays_isograms,
                         letters=unique_letter_array,
-                        valid_words=valid_anagrams_with_center,
+                        validWords=valid_anagrams_with_center,
                         total_points = sum(w.points for w in valid_anagrams_with_center)
                     )
 
