@@ -9,8 +9,8 @@ from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
 
 from utilities.constructor import construct_day
-from utilities.types import DayModel
-
+from utilities.custom_types import DayModel
+#some change
 load_dotenv()
 
 async def connect_db() -> Optional[AsyncIOMotorDatabase]:
