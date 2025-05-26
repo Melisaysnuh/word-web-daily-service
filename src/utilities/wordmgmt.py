@@ -3,7 +3,7 @@ import random
 import requests
 from dotenv import load_dotenv
 
-from custom_types import WordObj
+from utilities.custom_types import WordObj
 load_dotenv()
 
 
