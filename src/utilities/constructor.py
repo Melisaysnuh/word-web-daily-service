@@ -1,5 +1,5 @@
 
-from utilities.types import DayModel
+from utilities.custom_types import DayModel
 from utilities.wordmgmt import get_random_isogram, filter_list_by_length, get_unique_letters, return_validated_array
 from utilities.helpers import get_anagrams, get_center, get_isograms, filter_for_center,  calculate_word_points
 from datetime import datetime

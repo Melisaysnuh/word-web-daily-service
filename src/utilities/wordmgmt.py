@@ -3,7 +3,7 @@ import random
 import requests
 from dotenv import load_dotenv
 
-from utilities.types import WordObj
+from custom_types import WordObj
 load_dotenv()
 
 
@@ -30,17 +30,22 @@ def validate_word(candidate: str) -> WordObj | None:
 
         res = requests.get(f"{url}{candidate}?key={key}")
         data = res.json()
+        print(f"[validate_word] data is {data}")
 
         if not data or not isinstance(data[0], dict):
             print(f"[validate_word] '{candidate}' is not valid or only returned suggestions.")
-            return None
+            if (data):
+                new_res = requests.get(f"{url}{data[0]}?key={key}")
+                new_data = new_res.json()
 
-        shortdefs = data[0].get("shortdef", [])
+
+
+        shortdefs = data[0].get("shortdef", []) | new_data[0].get("shortdef", []) # type: ignore
         meta = data[0].get("meta", {})
         fl = data[0].get("fl", "")
 
         if not meta.get("offensive", False) and fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
-            return WordObj(word=candidate, definition=shortdefs)
+            return WordObj(word=candidate, definition=shortdefs) # type: ignore
 
         return None
 
@@ -95,3 +100,6 @@ def return_validated_array(words: list[str]) -> list[WordObj]:
     except Exception as error:
         print(f"[return_validated_array] Error: {error}");
         raise error
+
+test = validate_word('retiree')
+print(test)

@@ -1,7 +1,7 @@
 import random
 import re
 
-from utilities.types import WordObj
+from utilities.custom_types import WordObj
 
 
 
