@@ -36,7 +36,7 @@ def validate_word(candidate: str) -> WordObj | None:
             print(f"[validate_word] '{candidate}' is not valid or only returned suggestions.")
             return
 
-        shortdefs = data[0].get("shortdef", []) | new_data[0].get("shortdef", []) # type: ignore
+        shortdefs = data[0].get("shortdef", [])
         meta = data[0].get("meta", {})
         fl = data[0].get("fl", "")
 
