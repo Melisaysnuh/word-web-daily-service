@@ -3,102 +3,84 @@ import asyncio
 from datetime import datetime
 from typing import Optional
 
-import motor.motor_asyncio
-from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
 
 from utilities.constructor import construct_day
 from utilities.custom_types import DayModel
-#some change
+
 load_dotenv()
 
-async def connect_db() -> Optional[AsyncIOMotorDatabase]:
+# ---------- Database Connection ----------
+def get_db_client() -> Optional[AsyncIOMotorClient]:
     url = os.getenv('MONGO_URL')
-    print(f"[connect_db] url is {url}")
-    if url:
-        try:
-            client: AsyncIOMotorClient = motor.motor_asyncio.AsyncIOMotorClient(url)
-            db: AsyncIOMotorDatabase | None = client['wordweb']
-
-            await db.command('ping')
-            print('Successfully connected to the database.')
-            return db
-        except PyMongoError as e:
-            print('Internal server error:', e)
-            return None
-    else:
-        print('Error retrieving URL from environment variables.')
+    if not url:
+        print("[get_db_client] Error: MONGO_URL not set in environment variables.")
         return None
+    return AsyncIOMotorClient(url)
 
+async def ping_db(db: AsyncIOMotorDatabase) -> bool:
+    try:
+        await db.command('ping')
+        print("[ping_db] Successfully connected to the database.")
+        return True
+    except PyMongoError as e:
+        print(f"[ping_db] Database connection error: {e}")
+        return False
 
+# ---------- Day Model Utilities ----------
 async def get_existing_day_model(db: AsyncIOMotorDatabase, day: str) -> Optional[DayModel]:
     try:
-        print(f"[get_existing_day_model] Looking for existing model with day = {day}")
         document = await db['word-webs'].find_one({"daylist_id": day})
         if document:
-            print(f"[get_existing_day_model] Found existing document: {document}")
+            print(f"[get_existing_day_model] Found existing document for day {day}")
             return DayModel(**document)
         else:
-            print(f"[get_existing_day_model] No existing document found for day = {day}")
+            print(f"[get_existing_day_model] No document found for day {day}")
             return None
-    except PyMongoError as e:
-        print(f"[get_existing_day_model] MongoDB error: {e}")
-        return None
     except Exception as e:
-        print(f"[get_existing_day_model] Unexpected error: {e}")
+        print(f"[get_existing_day_model] Error: {e}")
         return None
 
-
-async def save_day_model(db: AsyncIOMotorDatabase, day_model: DayModel) -> Optional[DayModel]:
-    now = datetime.now().strftime("%Y_%m_%d")
-    print(f"[save_day_model] time is {now}")
+async def insert_day_model(db: AsyncIOMotorDatabase, day_model: DayModel) -> Optional[DayModel]:
     try:
-        existing = await get_existing_day_model(db, now)
-        if existing:
-            print("[save_day_model] Day model already exists, returning existing.")
-            return existing
-
-        day_dict = day_model.model_dump(exclude_none=True)
-        print(f"[save_day_model] Inserting new model: {day_dict}")
-        result = await db['word-webs'].insert_one(day_dict)
-
+        result = await db['word-webs'].insert_one(day_model.model_dump(exclude_none=True))
         if result.inserted_id:
-            print("[save_day_model] SUCCESSFULLY INSERTED MODEL!")
+            print("[insert_day_model] Successfully inserted new day model.")
             return day_model
         else:
-            print("[save_day_model] Failed to insert day model")
+            print("[insert_day_model] Failed to insert day model.")
             return None
-    except PyMongoError as e:
-        print(f"[save_day_model] MongoDB error: {e}")
-        return None
     except Exception as e:
-        print(f"[save_day_model] Unexpected error: {e}")
+        print(f"[insert_day_model] Error inserting day model: {e}")
         return None
 
-
+# ---------- Main Flow ----------
 async def store_list_model() -> Optional[DayModel]:
-    db: Optional[AsyncIOMotorDatabase| None]  = await connect_db()
-    if db is None:
-        print("[store_list_model] Could not connect to DB")
+    client = get_db_client()
+    if client is None:
         return None
 
-    try:
-        print("[store_list_model] Constructing day model...")
-        result: Optional[DayModel] = await construct_day()
-
-        if not result:
-            print("[store_list_model] Could not construct a valid DayModel.")
-            return None
-
-        print(f"[store_list_model] Got DayModel: {result}")
-        saved_model = await save_day_model(db, result)
-        return saved_model
-    except Exception as e:
-        print(f"[store_list_model] Error storing day list: {e}")
+    db = client['wordweb']
+    if not await ping_db(db):
         return None
 
+    today_str = datetime.now().strftime("%Y_%m_%d")
+    existing_model = await get_existing_day_model(db, today_str)
+    if existing_model:
+        print("[store_list_model] Returning existing day model.")
+        return existing_model
+
+    print("[store_list_model] Constructing new day model...")
+    new_model = await construct_day()
+    if not new_model:
+        print("[store_list_model] Failed to construct day model.")
+        return None
+
+    saved_model = await insert_day_model(db, new_model)
+    return saved_model
 
 if __name__ == "__main__":
-    test_result = asyncio.run(store_list_model())
-    print(f"[main] Final result: {test_result}")
+    final_result = asyncio.run(store_list_model())
+    print(f"[main] Final result: {final_result}")
