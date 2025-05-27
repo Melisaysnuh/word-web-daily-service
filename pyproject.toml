@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "word-web-python"
+version = "0.1.0"
+description = "This python service calculates and constructs the words needed to play Word Web (www.wordwebs.de)"
+authors = [{ name="Melissa Cessna", email="melissacessna@yahoo.com" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

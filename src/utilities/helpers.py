@@ -6,14 +6,17 @@ from utilities.custom_types import WordObj
 
 
 
+
 def calculate_word_points (word: WordObj, isograms_list: list[WordObj]):
 
     if len(word.word) < 5:
         word.points = 2
         return word
     elif isograms_list.count(word) > 0:
-        word.points = len(word.word) +7
+        new_points=len(word.word) + 7
+        word.points=new_points
         word.isogram=True
+        print(f"points are: {word.points}")
         return word
     else:
         word.points = len(word.word)
@@ -26,9 +29,13 @@ def filter_for_center (to_filter: list[WordObj], letter: str) -> list[WordObj]:
             to_filter.remove(word_object)
     return to_filter
 
-def get_anagrams (word: str, potentials: list[str]):
-    regex = f'^[{word}]+$'
-    return [w for w in potentials if re.fullmatch(regex, w)]
+def get_anagrams (word: str, potentials: list[str]) -> list[str]:
+    if len(word) > 0 and len(potentials) > 0:
+        low_word = word.lower()
+        regex = f'^[{low_word}]+$'
+        return [w.lower() for w in potentials if re.fullmatch(regex, w.lower())]
+    else:
+        return [] # type: ignore
 
 
 
