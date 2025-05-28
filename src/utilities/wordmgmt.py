@@ -1,3 +1,4 @@
+import asyncio
 import os
 import random
 from typing import Any, Dict
@@ -6,6 +7,8 @@ from dotenv import load_dotenv
 
 from utilities.custom_types import Definition, Hwi, Meta, WordObj, DictionaryResponse
 load_dotenv()
+
+from utilities.sandbox import invalid
 
 
 
@@ -30,20 +33,23 @@ def validate_word(candidate: str) -> WordObj | None:
         key = os.getenv('WEBSTER_API_KEY')
 
         res = requests.get(f"{url}{candidate}?key={key}")
+        if res.status_code != 200:
+            print(f"Failed to fetch: {res.status_code}")
+            return None
         data  = res.json()
         if isinstance(data, list):
             data = data[0] # type: ignore
         if not isinstance(data, str):
             parsed = parse_dictionary_response(data) # type: ignore
-            #print(f"[validate_word] data is {parsed}")
+            print(f"[validate_word] {candidate}'s fl is {parsed.fl}")
 
             if not parsed:
                 print(f"[validate_word] word is not valid")
                 return
 
-            if not parsed.meta.offensive and parsed.fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
+            if not parsed.meta.offensive and parsed.fl and parsed.fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
                 return WordObj(word=candidate, definition=parsed.shortdef)
-
+        print(f"{candidate} not valid at end of [validate_word]")
         return None
 
     except Exception as e:
@@ -76,10 +82,19 @@ def parse_dictionary_response(data: Dict[str, Any]) -> DictionaryResponse:
                             text = dt_entry[1].replace('{bc}', '').strip()
                             definitions.append(Definition(text=text))
 
+    fl: str = data.get('fl')
+    if not fl:
+        cxs = data.get('cxs')
+        print(f"[parsing_dictionary_response] cxs is {cxs}")
+        if cxs and isinstance(cxs, list):
+            fl = ', '.join(cxs) # type: ignore
+        else:
+            fl = 'unknown'
+
     return DictionaryResponse(
         meta=meta,
         hwi=hwi,
-        fl=data['fl'],
+        fl = fl,
         shortdef=shortdef,
         date=date,
         definitions=definitions
@@ -133,3 +148,9 @@ def return_validated_array(words: list[str]) -> list[WordObj]:
         print(f"[return_validated_array] Error: {error}");
         raise error
 
+async def main():
+    test = return_validated_array(invalid)
+    print(test)
+
+if __name__ == "__main__":
+    asyncio.run(main())
