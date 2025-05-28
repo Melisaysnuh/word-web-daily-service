@@ -121,6 +121,7 @@ def remove_invalid_word(word_to_remove: str):
         raise error
 
 def return_validated_array(words: list[str]) -> list[WordObj]:
+    print(words)
     try:
         valid_words: list[WordObj] = []
         for item in words:
@@ -131,3 +132,4 @@ def return_validated_array(words: list[str]) -> list[WordObj]:
     except Exception as error:
         print(f"[return_validated_array] Error: {error}");
         raise error
+
