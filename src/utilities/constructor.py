@@ -25,8 +25,12 @@ async def construct_day() -> DayModel | None:
                 center = get_center(valid_anagrams, unique_letter_array)
                 print(f"center is {center}")
                 if center:
-                    print(f"[construct_day]: Center is {center} .")
+                    print(f"[construct_day]: Center is {center}. Adjusting array.")
+                    unique_letter_array.remove(center)
+                    unique_letter_array.insert(0, center)
+                    print(f"[construct_day]: unqiue_letter_array is {unique_letter_array} .")
                     valid_anagrams_with_center = filter_for_center(valid_anagrams, center)
+                    print(f"[construct_day]: unqiue_letter_array is {unique_letter_array} .")
                     todays_isograms = get_isograms(valid_anagrams_with_center, unique_letter_array)
                     for i, item in enumerate(valid_anagrams_with_center):
                         valid_anagrams_with_center[i] = calculate_word_points(item, todays_isograms)
