@@ -1,9 +1,10 @@
 import os
 import random
+from typing import Any, Dict
 import requests
 from dotenv import load_dotenv
 
-from utilities.custom_types import WordObj
+from utilities.custom_types import Definition, Hwi, Meta, WordObj, DictionaryResponse
 load_dotenv()
 
 
@@ -29,19 +30,17 @@ def validate_word(candidate: str) -> WordObj | None:
         key = os.getenv('WEBSTER_API_KEY')
 
         res = requests.get(f"{url}{candidate}?key={key}")
-        data = res.json()
-        print(f"[validate_word] data is {data}")
+        data  = res.json()
+        if isinstance(data, list):
+            data = data[0] # type: ignore
+        parsed = parse_dictionary_response(data) # type: ignore
+        print(f"[validate_word] data is {parsed}")
 
-        if not data or not isinstance(data[0], dict):
-            print(f"[validate_word] '{candidate}' is not valid or only returned suggestions.")
+        if not parsed:
             return
 
-        shortdefs = data[0].get("shortdef", [])
-        meta = data[0].get("meta", {})
-        fl = data[0].get("fl", "")
-
-        if not meta.get("offensive", False) and fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
-            return WordObj(word=candidate, definition=shortdefs) # type: ignore
+        if not parsed.meta.offensive and parsed.fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
+            return WordObj(word=candidate, definition=parsed.shortdef)
 
         return None
 
@@ -49,6 +48,40 @@ def validate_word(candidate: str) -> WordObj | None:
         print(f"[validate_word] Error validating '{candidate}': {e}")
         return None
 
+def parse_dictionary_response(data: Dict[str, Any]) -> DictionaryResponse:
+    meta = Meta(
+        id=data['meta']['id'],
+        uuid=data['meta']['uuid'],
+        sort=int(data['meta']['sort']),
+        src=data['meta']['src'],
+        section=data['meta']['section'],
+        stems=data['meta']['stems'],
+        offensive=data['meta']['offensive']
+    )
+    hwi = Hwi(hw=data['hwi']['hw'])
+    shortdef = data.get('shortdef', [])
+    date = data.get('date', '')
+
+    # Extract nested definition text
+    definitions: list[Definition] = []
+    for def_block in data.get('def', []):
+        for sseq_group in def_block.get('sseq', []):
+            for sense_group in sseq_group:
+                if sense_group[0] == 'sense':
+                    sense_data = sense_group[1]
+                    for dt_entry in sense_data.get('dt', []):
+                        if dt_entry[0] == 'text':
+                            text = dt_entry[1].replace('{bc}', '').strip()
+                            definitions.append(Definition(text=text))
+
+    return DictionaryResponse(
+        meta=meta,
+        hwi=hwi,
+        fl=data['fl'],
+        shortdef=shortdef,
+        date=date,
+        definitions=definitions
+    )
 
 def get_random_isogram():
     try:
@@ -97,5 +130,6 @@ def return_validated_array(words: list[str]) -> list[WordObj]:
         print(f"[return_validated_array] Error: {error}");
         raise error
 
-test = validate_word('retiree')
+test = validate_word('brag')
+
 print(test)
