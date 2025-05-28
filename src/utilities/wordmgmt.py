@@ -33,14 +33,16 @@ def validate_word(candidate: str) -> WordObj | None:
         data  = res.json()
         if isinstance(data, list):
             data = data[0] # type: ignore
-        parsed = parse_dictionary_response(data) # type: ignore
-        print(f"[validate_word] data is {parsed}")
+        if not isinstance(data, str):
+            parsed = parse_dictionary_response(data) # type: ignore
+            print(f"[validate_word] data is {parsed}")
 
-        if not parsed:
-            return
+            if not parsed:
+                print(f"[validate_word] word is not valid")
+                return
 
-        if not parsed.meta.offensive and parsed.fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
-            return WordObj(word=candidate, definition=parsed.shortdef)
+            if not parsed.meta.offensive and parsed.fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
+                return WordObj(word=candidate, definition=parsed.shortdef)
 
         return None
 
@@ -130,6 +132,6 @@ def return_validated_array(words: list[str]) -> list[WordObj]:
         print(f"[return_validated_array] Error: {error}");
         raise error
 
-test = validate_word('brag')
+test = validate_word('seem')
 
 print(test)
