@@ -35,7 +35,7 @@ def validate_word(candidate: str) -> WordObj | None:
             data = data[0] # type: ignore
         if not isinstance(data, str):
             parsed = parse_dictionary_response(data) # type: ignore
-            print(f"[validate_word] data is {parsed}")
+            #print(f"[validate_word] data is {parsed}")
 
             if not parsed:
                 print(f"[validate_word] word is not valid")
@@ -131,7 +131,3 @@ def return_validated_array(words: list[str]) -> list[WordObj]:
     except Exception as error:
         print(f"[return_validated_array] Error: {error}");
         raise error
-
-test = validate_word('seem')
-
-print(test)
