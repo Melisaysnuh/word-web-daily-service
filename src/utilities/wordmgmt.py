@@ -10,7 +10,34 @@ load_dotenv()
 
 from utilities.sandbox import invalid
 
+def fetch_list():
+    with open("words.txt", "r") as file:
+        words = [line.strip() for line in file]
+        return words
 
+
+def filter_list_by_length(words: list[str], num1: int, num2: int):
+    return [word for word in words if len(word) >= num1 and len(word) <= num2]
+
+def get_random_isogram(words: list[str]):
+    try:
+        long_list = filter_list_by_length(words, 7,7)
+
+        unique_letter_words = [word for word in long_list if len(set(word)) == len(word)]
+
+        if not unique_letter_words:
+            raise ValueError("[get_random_isogram] No 7-letter isogram words found.")
+        else:
+            candidate = random.choice(unique_letter_words)
+            result = validate_word(candidate)
+            if result:
+                return candidate
+            else:
+                remove_invalid_word(candidate)
+                return None
+
+    except Exception as e:
+        print(f'[get_random_isogram] Exception: {e}')
 
 
 def get_unique_letters(letter_array: list[str]) -> list[str]:
@@ -22,10 +49,7 @@ def get_unique_letters(letter_array: list[str]) -> list[str]:
             unique_array.append(letter)
     return unique_array
 
-def filter_list_by_length(num1: int, num2: int):
-    with open("words.txt", "r") as file:
-        words = [line.strip() for line in file]
-    return [word for word in words if len(word) >= num1 and len(word) <= num2]
+
 
 def validate_word(candidate: str) -> WordObj | None:
     try:
@@ -100,25 +124,6 @@ def parse_dictionary_response(data: Dict[str, Any]) -> DictionaryResponse:
         definitions=definitions
     )
 
-def get_random_isogram():
-    try:
-        long_list = filter_list_by_length(7,7)
-
-        unique_letter_words = [word for word in long_list if len(set(word)) == len(word)]
-
-        if not unique_letter_words:
-            raise ValueError("[get_random_isogram] No 7-letter isogram words found.")
-        else:
-            candidate = random.choice(unique_letter_words)
-            result = validate_word(candidate)
-            if result:
-                return candidate
-            else:
-                remove_invalid_word(candidate)
-                return None
-
-    except Exception as e:
-        print(f'[get_random_isogram] Exception: {e}')
 
 
 def remove_invalid_word(word_to_remove: str):

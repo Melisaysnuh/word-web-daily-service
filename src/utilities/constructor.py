@@ -1,6 +1,6 @@
 
 from utilities.custom_types import DayModel
-from utilities.wordmgmt import get_random_isogram, filter_list_by_length, get_unique_letters, return_validated_array
+from utilities.wordmgmt import fetch_list, get_random_isogram, filter_list_by_length, get_unique_letters, return_validated_array
 from utilities.helpers import get_anagrams, get_center, get_isograms, filter_for_center,  calculate_word_points
 from datetime import datetime
 import asyncio
@@ -9,9 +9,11 @@ import asyncio
 async def construct_day() -> DayModel | None:
     try:
         #start by searching the word list for a random isogram. Our minimum length is 4, and for simplicity, max is 12.
-        isogram: str | None = get_random_isogram()
+        long_list: list[str] = fetch_list()
+        main_list: list[str] = filter_list_by_length(long_list, 4,12)
+        isogram: str | None = get_random_isogram(main_list)
         if isogram:
-            main_list: list[str] = filter_list_by_length(4,12)
+
 
             letter_list: list[str] = list(isogram)
             unique_letter_array = get_unique_letters(letter_list)
