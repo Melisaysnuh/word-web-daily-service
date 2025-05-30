@@ -1,11 +1,14 @@
 import asyncio
 import os
 import random
-from typing import Any, Dict
+
 import requests
 from dotenv import load_dotenv
 
-from utilities.custom_types import Definition, Hwi, Meta, WordObj, DictionaryResponse
+
+from utilities.helpers import filter_list_by_length
+from utilities.parser import parse_dictionary_response
+from utilities.custom_types import  WordObj
 load_dotenv()
 
 from utilities.sandbox import invalid
@@ -15,9 +18,6 @@ def fetch_list():
         words = [line.strip() for line in file]
         return words
 
-
-def filter_list_by_length(words: list[str], num1: int, num2: int):
-    return [word for word in words if len(word) >= num1 and len(word) <= num2]
 
 def get_random_isogram(words: list[str]):
     try:
@@ -33,21 +33,14 @@ def get_random_isogram(words: list[str]):
             if result:
                 return candidate
             else:
+                unique_letter_words.remove(candidate)
                 remove_invalid_word(candidate)
-                return None
+                get_random_isogram(unique_letter_words)
+                raise ValueError("[get_random_isogram] No 7-letter isogram words found.")
 
     except Exception as e:
         print(f'[get_random_isogram] Exception: {e}')
-
-
-def get_unique_letters(letter_array: list[str]) -> list[str]:
-    seen: set[str] = set()
-    unique_array: list[str] = []
-    for letter in letter_array:
-        if letter not in seen:
-            seen.add(letter)
-            unique_array.append(letter)
-    return unique_array
+        raise
 
 
 
@@ -64,7 +57,7 @@ def validate_word(candidate: str) -> WordObj | None:
         if isinstance(data, list):
             data = data[0] # type: ignore
         if not isinstance(data, str):
-            parsed = parse_dictionary_response(data) # type: ignore
+            parsed = parse_dictionary_response(data)  # type: ignore
             print(f"[validate_word] {candidate}'s fl is {parsed.fl}")
 
             if not parsed:
@@ -79,50 +72,6 @@ def validate_word(candidate: str) -> WordObj | None:
     except Exception as e:
         print(f"[validate_word] Error validating '{candidate}': {e}")
         return None
-
-def parse_dictionary_response(data: Dict[str, Any]) -> DictionaryResponse:
-    meta = Meta(
-        id=data['meta']['id'],
-        uuid=data['meta']['uuid'],
-        sort=int(data['meta']['sort']),
-        src=data['meta']['src'],
-        section=data['meta']['section'],
-        stems=data['meta']['stems'],
-        offensive=data['meta']['offensive']
-    )
-    hwi = Hwi(hw=data['hwi']['hw'])
-    shortdef = data.get('shortdef', [])
-    date = data.get('date', '')
-
-    # Extract nested definition text
-    definitions: list[Definition] = []
-    for def_block in data.get('def', []):
-        for sseq_group in def_block.get('sseq', []):
-            for sense_group in sseq_group:
-                if sense_group[0] == 'sense':
-                    sense_data = sense_group[1]
-                    for dt_entry in sense_data.get('dt', []):
-                        if dt_entry[0] == 'text':
-                            text = dt_entry[1].replace('{bc}', '').strip()
-                            definitions.append(Definition(text=text))
-
-    fl: str = data.get('fl')
-    if not fl:
-        cxs = data.get('cxs')
-        print(f"[parsing_dictionary_response] cxs is {cxs}")
-        if cxs and isinstance(cxs, list):
-            fl = ', '.join(cxs) # type: ignore
-        else:
-            fl = 'unknown'
-
-    return DictionaryResponse(
-        meta=meta,
-        hwi=hwi,
-        fl = fl,
-        shortdef=shortdef,
-        date=date,
-        definitions=definitions
-    )
 
 
 
@@ -147,7 +96,7 @@ def return_validated_array(words: list[str]) -> list[WordObj]:
         for item in words:
             is_valid = validate_word(item)
             if is_valid:
-                valid_words.append(is_valid)
+                valid_words.append(WordObj(word=item))
         return valid_words
     except Exception as error:
         print(f"[return_validated_array] Error: {error}");

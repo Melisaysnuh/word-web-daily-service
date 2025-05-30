@@ -1,7 +1,7 @@
 
 from utilities.custom_types import DayModel
-from utilities.wordmgmt import fetch_list, get_random_isogram, filter_list_by_length, get_unique_letters, return_validated_array
-from utilities.helpers import get_anagrams, get_center, get_isograms, filter_for_center,  calculate_word_points
+from utilities.wordmgmt import fetch_list, get_random_isogram, filter_list_by_length,  return_validated_array
+from utilities.helpers import get_anagrams, get_center, get_isograms, filter_for_center,  calculate_word_points, get_unique_letters
 from datetime import datetime
 import asyncio
 
@@ -32,7 +32,6 @@ async def construct_day() -> DayModel | None:
                     unique_letter_array.insert(0, center)
                     print(f"[construct_day]: unqiue_letter_array is {unique_letter_array} .")
                     valid_anagrams_with_center = filter_for_center(valid_anagrams, center)
-                    print(f"[construct_day]: unqiue_letter_array is {unique_letter_array} .")
                     todays_isograms = get_isograms(valid_anagrams_with_center, unique_letter_array)
                     for i, item in enumerate(valid_anagrams_with_center):
                         valid_anagrams_with_center[i] = calculate_word_points(item, todays_isograms)

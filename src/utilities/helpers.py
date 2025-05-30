@@ -5,7 +5,10 @@ from utilities.custom_types import WordObj
 
 
 
-
+def filter_list_by_length(words: list[str], num1: int, num2: int):
+    if (not num1 or not num2):
+        return words
+    return [word for word in words if len(word) >= num1 and len(word) <= num2]
 
 def calculate_word_points (word: WordObj, isograms_list: list[WordObj]):
 
@@ -41,7 +44,6 @@ def get_anagrams (word: str, potentials: list[str]) -> list[str]:
 
 def get_center (valid_words: list[WordObj], letters: list[str]):
     for l in letters:
-
         filtered_anagrams: list[WordObj] = filter_for_center(valid_words, l)
         if len(filtered_anagrams) > 0 and len(filtered_anagrams) < 60:
             print(f'found the perfect length, returning {l}')
@@ -49,17 +51,32 @@ def get_center (valid_words: list[WordObj], letters: list[str]):
     print(f'returning random letter')
     return random.choice(letters)
 
-def get_isograms(word_list: list[WordObj], letter_list: list[str]) -> list[WordObj]:
-    reg1 = f'(?=.*'
-    reg2 = f')'
-    reg3 = ''.join(letter_list)
-    reg_constructor = ''.join([reg1 + l + reg2 for l in letter_list])
+def get_unique_letters(letter_array: list[str]) -> list[str]:
+    seen: set[str] = set()
+    unique_array: list[str] = []
+    for letter in letter_array:
+        if letter not in seen:
+            seen.add(letter)
+            unique_array.append(letter)
+    return unique_array
 
-    regex = f'^{reg_constructor}[{reg3}]+$'
-    isograms = [word for word in word_list if re.fullmatch(regex, word.word)]
+def get_isograms(word_list: list[WordObj], letter_list: list[str]) -> list[WordObj]:
+    first_letter = letter_list[0]
+    allowed_letters = ''.join(letter_list)
+
+    # * REGEX LOGIC
+    # ? Should already be filtered for C, regex might be redundant
+    # 1. (?=.*c) → must include at least one 'c'
+    # 2. ^[calorie]+$ → only allowed letters
+    regex = f'^(?=.*{first_letter})[{allowed_letters}]+$'
+    print(f"regex is {regex}")
+
+    isograms = [
+        word for word in word_list
+        if re.fullmatch(regex, word.word.lower())
+    ]
 
     return isograms
-
 
 
 
