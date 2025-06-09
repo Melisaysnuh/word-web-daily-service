@@ -44,7 +44,7 @@ async def construct_day() -> DayModel | None:
 
                     # now we will build our DayModel
                     return DayModel(
-                        daylist_id=datetime.now().strftime("%Y_%m_%d"),
+                        daylist_id=datetime.now().strftime("%Y_%W"),
                         centerLetter=center,
                         isograms=todays_isograms,
                         letters=unique_letter_array,

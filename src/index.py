@@ -66,7 +66,7 @@ async def store_list_model() -> Optional[DayModel]:
     if not await ping_db(db):
         return None
 
-    today_str = datetime.now().strftime("%Y_%m_%d")
+    today_str = datetime.now().strftime("%Y_%W")
     existing_model = await get_existing_day_model(db, today_str)
     if existing_model:
         print("[store_list_model] Returning existing day model.")

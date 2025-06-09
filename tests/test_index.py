@@ -29,7 +29,7 @@ async def test_store_list_model_inserts_new_day_model(
         centerLetter='a',
         letters=['a', 'b', 'c', 'd', 'e', 'f', 'g'],
         validWords=[WordObj(word="face"), WordObj(word="badge")],
-        daylist_id=datetime.now().strftime("%Y_%m_%d"),
+        daylist_id=datetime.now().strftime("%Y_%W"),
         isograms=[WordObj(word="face")],
         total_points=49
     )
