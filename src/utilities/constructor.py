@@ -11,7 +11,7 @@ async def construct_day() -> DayModel | None:
         #start by searching the word list for a random isogram. Our minimum length is 4, and for simplicity, max is 12.
         long_list: list[str] = fetch_list()
         main_list: list[str] = filter_list_by_length(long_list, 4,12)
-        isogram: str | None = get_random_isogram(main_list)
+        isogram: str = get_random_isogram(main_list)
         if isogram:
 
 
@@ -23,6 +23,7 @@ async def construct_day() -> DayModel | None:
             valid_anagrams = return_validated_array(anagrams)
 
         # once we have anagrams, we gt the center and filter only anagrams containing center letter
+        #todo this step should happen first to reduce # of api calls
             if valid_anagrams:
                 center = get_center(valid_anagrams, unique_letter_array)
                 print(f"center is {center}")
