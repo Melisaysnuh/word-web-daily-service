@@ -66,9 +66,10 @@ async def store_list_model() -> Optional[DayModel]:
     db = client['wordweb']
     if not await ping_db(db):
         return None
-
-    print('today is', datetime.now().strftime("%Y_%W"))
-    existing_model = await get_existing_day_model(db, datetime.now().strftime("%Y_%W"))
+    year, week, _ = datetime.now().isocalendar()
+    daylist_id = f"{year}_{week}"
+    print('today is', daylist_id)
+    existing_model = await get_existing_day_model(db, daylist_id)
     if existing_model:
         print("[store_list_model] Returning existing day model.")
         return existing_model
