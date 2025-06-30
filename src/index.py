@@ -3,6 +3,7 @@ import asyncio
 from datetime import datetime
 from typing import Optional
 
+
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo.errors import PyMongoError
 from dotenv import load_dotenv
@@ -66,8 +67,9 @@ async def store_list_model() -> Optional[DayModel]:
     if not await ping_db(db):
         return None
 
-    today_str = datetime.now().strftime("%Y_%W")
-    existing_model = await get_existing_day_model(db, today_str)
+
+    print('today is', datetime.now().strftime("%Y_%W"))
+    existing_model = await get_existing_day_model(db, datetime.now().strftime("%Y_%W"))
     if existing_model:
         print("[store_list_model] Returning existing day model.")
         return existing_model
