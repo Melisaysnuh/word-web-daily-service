@@ -1,7 +1,6 @@
 import asyncio
 import os
 import random
-
 import requests
 from dotenv import load_dotenv
 
@@ -25,22 +24,24 @@ def get_random_isogram(words: list[str]):
 
         unique_letter_words = [word for word in long_list if len(set(word)) == len(word)]
 
+
         if not unique_letter_words:
             raise ValueError("[get_random_isogram] No 7-letter isogram words found.")
         else:
             candidate = random.choice(unique_letter_words)
             result = validate_word(candidate)
+            print('result is: ', result)
             if result:
+                print('returning...')
                 return candidate
             else:
                 unique_letter_words.remove(candidate)
                 remove_invalid_word(candidate)
-                get_random_isogram(unique_letter_words)
-                raise ValueError("[get_random_isogram] No 7-letter isogram words found.")
+                return get_random_isogram(unique_letter_words)
 
     except Exception as e:
         print(f'[get_random_isogram] Exception: {e}')
-        raise
+        raise ValueError("[get_random_isogram] No validated 7-letter isogram words found.")
 
 
 
@@ -58,15 +59,15 @@ def validate_word(candidate: str) -> WordObj | None:
             data = data[0] # type: ignore
         if not isinstance(data, str):
             parsed = parse_dictionary_response(data)  # type: ignore
-            print(f"[validate_word] {candidate}'s fl is {parsed.fl}")
+            #print(f"[validate_word] {candidate}'s fl is {parsed.fl}")
 
             if not parsed:
-                print(f"[validate_word] word is not valid")
+                #print(f"[validate_word] word is not valid")
                 return
 
             if not parsed.meta.offensive and parsed.fl and parsed.fl not in ['abbreviation', 'Latin phrase', 'Spanish phrase']:
                 return WordObj(word=candidate, definition=parsed.shortdef)
-        print(f"{candidate} not valid at end of [validate_word]")
+        #print(f"{candidate} not valid at end of [validate_word]")
         return None
 
     except Exception as e:
@@ -90,7 +91,7 @@ def remove_invalid_word(word_to_remove: str):
         raise error
 
 def return_validated_array(words: list[str]) -> list[WordObj]:
-    print(words)
+    #print(words)
     try:
         valid_words: list[WordObj] = []
         for item in words:

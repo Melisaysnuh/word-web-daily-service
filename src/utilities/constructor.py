@@ -40,11 +40,12 @@ async def construct_day() -> DayModel | None:
                     for item in valid_anagrams_with_center:
                         item = calculate_word_points(item, todays_isograms)
 
-                    print(f"[construct_day]: Returning {len(valid_anagrams_with_center)} words today.")
-
+                    print(f"[construct_day]: Returning {len(valid_anagrams_with_center)} words for {datetime.now()}.")
+                    year, week, _ = datetime.now().isocalendar()
+                    daylist_id = f"{year}_{week}"
                     # now we will build our DayModel
                     return DayModel(
-                        daylist_id=datetime.now().strftime("%Y_%W"),
+                        daylist_id=daylist_id,
                         centerLetter=center,
                         isograms=todays_isograms,
                         letters=unique_letter_array,
@@ -65,7 +66,7 @@ async def construct_day() -> DayModel | None:
 
 async def main():
     test = await construct_day()
-    print(test)
+    print('test is', test)
 
 if __name__ == "__main__":
     asyncio.run(main())

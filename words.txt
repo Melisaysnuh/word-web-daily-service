@@ -21779,7 +21779,6 @@ binghis
 bingies
 binging
 bingle
-bingled
 bingles
 bingling
 bingo
@@ -21997,7 +21996,6 @@ biography
 biohazard
 biohazardous
 biohazards
-bioherm
 bioherms
 bioindustries
 bioindustry
@@ -30770,7 +30768,6 @@ camped
 camper
 camperies
 campers
-campery
 campesino
 campesinos
 campest
@@ -82790,7 +82787,6 @@ feudalizes
 feudalizing
 feudally
 feudaries
-feudary
 feudatories
 feudatory
 feuding
@@ -104316,7 +104312,6 @@ hobjobbers
 hobjobbing
 hobjobbings
 hobjobs
-hoblike
 hobnailed
 hobnailing
 hobnails
@@ -104552,7 +104547,6 @@ holesome
 holey
 holeyer
 holeyest
-holibut
 holibuts
 holiday
 holidayed
@@ -172542,7 +172536,6 @@ pleonasts
 pleonectic
 pleonexia
 pleonexias
-pleonic
 pleons
 pleopod
 pleopods
@@ -186030,7 +186023,6 @@ ragamuffins
 ragas
 ragbag
 ragbags
-ragbolt
 ragbolts
 ragde
 rage
@@ -221244,7 +221236,6 @@ stonished
 stonishes
 stonishing
 stonk
-stonked
 stonker
 stonkered
 stonkering
@@ -251875,7 +251866,6 @@ validating
 validation
 validations
 validatory
-valider
 validest
 validities
 validity
